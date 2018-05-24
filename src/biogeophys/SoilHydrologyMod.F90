@@ -37,7 +37,8 @@ module SoilHydrologyMod
   public :: RenewCondensation    ! Misc. corrections
 
   !-----------------------------------------------------------------------
-  real(r8), private :: baseflow_scalar = 1.e-2_r8
+  real(r8), private :: baseflow_scalar
+  real(r8), private :: fff
 
   character(len=*), parameter, private :: sourcefile = &
        __FILE__
@@ -69,7 +70,9 @@ contains
     character(len=*), parameter :: subname = 'soilHydReadNML'
     character(len=*), parameter :: nmlname = 'soilhydrology_inparm'
     !-----------------------------------------------------------------------
-    namelist /soilhydrology_inparm/ baseflow_scalar
+    namelist /soilhydrology_inparm/ &
+            baseflow_scalar, &
+            fff
 
     ! Initialize options to default values, in case they are not specified in
     ! the namelist
@@ -92,6 +95,7 @@ contains
     end if
 
     call shr_mpi_bcast (baseflow_scalar, mpicom)
+    call shr_mpi_bcast (fff, mpicom)
 
     if (masterproc) then
        write(iulog,*) ' '
@@ -135,7 +139,7 @@ contains
     real(r8) :: dtime                                      !land model time step (sec)
     real(r8) :: xs(bounds%begc:bounds%endc)                !excess soil water above urban ponding limit
     real(r8) :: vol_ice(bounds%begc:bounds%endc,1:nlevsoi) !partial volume of ice lens in layer
-    real(r8) :: fff(bounds%begc:bounds%endc)               !decay factor (m-1)
+    !real(r8) :: fff(bounds%begc:bounds%endc)               !decay factor (m-1)
     real(r8) :: s1                                         !variable to calculate qinmax
     real(r8) :: su                                         !variable to calculate qinmax
     real(r8) :: v                                          !variable to calculate qinmax
@@ -210,7 +214,7 @@ contains
 
       do fc = 1, num_hydrologyc
          c = filter_hydrologyc(fc)
-         fff(c) = 0.5_r8
+         !fff(c) = 0.5_r8
          if (use_vichydro) then 
             top_moist(c) = 0._r8
             top_ice(c) = 0._r8
@@ -228,7 +232,7 @@ contains
             i_0(c)         = max_infil(c) * (1._r8 - (1._r8 - A(c))**(1._r8/b_infil(c)))
             fsat(c)        = A(c)  !for output
          else
-            fsat(c) = wtfact(c) * exp(-0.5_r8*fff(c)*zwt(c))
+            fsat(c) = wtfact(c) * exp(-0.5_r8*fff*zwt(c))
          end if
 
          ! use perched water table to determine fsat (if present)
@@ -236,11 +240,11 @@ contains
             if (use_vichydro) then
                fsat(c) =  A(c)
             else
-               fsat(c) = wtfact(c) * exp(-0.5_r8*fff(c)*zwt(c))
+               fsat(c) = wtfact(c) * exp(-0.5_r8*fff*zwt(c))
             end if
          else
             if ( frost_table(c) > zwt_perched(c)) then 
-               fsat(c) = wtfact(c) * exp(-0.5_r8*fff(c)*zwt_perched(c))!*( frost_table(c) - zwt_perched(c))/4.0
+               fsat(c) = wtfact(c) * exp(-0.5_r8*fff*zwt_perched(c))!*( frost_table(c) - zwt_perched(c))/4.0
             endif
          endif
          if (origflag == 1) then
@@ -599,7 +603,7 @@ contains
      integer  :: jwt(bounds%begc:bounds%endc)            ! index of the soil layer right above the water table (-)
      real(r8) :: rsub_bot(bounds%begc:bounds%endc)       ! subsurface runoff - bottom drainage (mm/s)
      real(r8) :: rsub_top(bounds%begc:bounds%endc)       ! subsurface runoff - topographic control (mm/s)
-     real(r8) :: fff(bounds%begc:bounds%endc)            ! decay factor (m-1)
+     !real(r8) :: fff(bounds%begc:bounds%endc)            ! decay factor (m-1)
      real(r8) :: xsi(bounds%begc:bounds%endc)            ! excess soil water above saturation at layer i (mm)
      real(r8) :: rous                                    ! aquifer yield (-)
      real(r8) :: wh                                      ! smpfz(jwt)-z(jwt) (mm)

@@ -184,6 +184,11 @@ Changes soil evaporative resistance method from Sakaguchi and Zeng
 formulation (1).
 </entry>
 
+<entry id="dint" type="real" category="clm_physics"
+       group="soil_resis_inparm" valid_values="" >
+Fraction of saturated soil for moisture value at which DSL initiates.
+</entry>
+
 <entry id="fire_method" type="char*80" category="clm_physics"
        group="cnfire_inparm" valid_values="nofire,li2014qianfrc,li2016crufrc" >
 The method type to use for CNFire
@@ -322,6 +327,11 @@ Maximum fraction of leaf that may be wet prior to drip occuring
        group="soilhydrology_inparm" valid_values="" >
 Scalar multiplier for base flow rate
 (ONLY used if lower_boundary_condition is not aquifer or table)
+</entry>
+
+<entry id="fff" type="real" category="clm_physics"
+	group="soilhydrology_inparm" valid_values="" >
+Decay factor for fractional saturated area
 </entry>
 
 <entry id="soilwater_movement_method" type="integer" category="clm_physics"

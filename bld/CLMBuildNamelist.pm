@@ -2739,6 +2739,7 @@ sub setup_logic_hydrology_params {
   my ($opts, $nl_flags, $definition, $defaults, $nl, $physv) = @_;
 
   if ( $physv->as_long() >= $physv->as_long("clm4_5")) {
+     add_default($opts, $nl_flags->{'inputdata_rootdir'}, $definition, $defaults, $nl, 'fff' );
      my $lower = $nl->get_value( 'lower_boundary_condition'  );
      my $var   = "baseflow_scalar";
      if ( $lower == 1 || $lower == 2 ) {
@@ -3610,6 +3611,7 @@ sub setup_logic_soil_resis {
 
   if ( $physv->as_long() >= $physv->as_long("clm4_5") ) {
     add_default($opts, $nl_flags->{'inputdata_rootdir'}, $definition, $defaults, $nl, 'soil_resis_method' );
+    add_default($opts, $nl_flags->{'inputdata_rootdir'}, $definition, $defaults, $nl, 'dint' );
   }
 }
 #-------------------------------------------------------------------------------

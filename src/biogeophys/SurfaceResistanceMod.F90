@@ -29,6 +29,8 @@ module SurfaceResistanceMod
 !  public :: init_soil_resistance
   public :: soil_resistance_readNL
 
+  real(r8), private :: dint
+
   character(len=*), parameter, private :: sourcefile = &
        __FILE__
   !
@@ -124,7 +126,9 @@ contains
     !-----------------------------------------------------------------------
 
 ! MUST agree with name in namelist and read statement
-    namelist /soil_resis_inparm/ soil_resis_method
+    namelist /soil_resis_inparm/ &
+            soil_resis_method, &
+            dint
 
     ! Default values for namelist
 
@@ -149,11 +153,13 @@ contains
     endif
 
     call shr_mpi_bcast(soil_resis_method, mpicom)
+    call shr_mpi_bcast(dint, mpicom)
 
     if (masterproc) then
        write(iulog,*) ' '
        write(iulog,*) 'soil_resis settings:'
        write(iulog,*) '  soil_resis_method  = ',soil_resis_method
+       write(iulog,*) '  dint  = ',dint
     endif
 
   end subroutine soil_resistance_readNL
@@ -371,9 +377,9 @@ contains
 !      dsl(c) = dzmm(c,1)*max(0.001_r8,(0.8*eff_porosity(c,1) - vwc_liq)) &
 ! try arbitrary scaling (not top layer thickness)
 !            dsl(c) = 15._r8*max(0.001_r8,(0.8*eff_porosity(c,1) - vwc_liq)) &
-            dsl(c) = 15._r8*max(0.001_r8,(0.8*eff_por_top - vwc_liq)) &
+            dsl(c) = 15._r8*max(0.001_r8,(dint*eff_por_top - vwc_liq)) &
                  !           /max(0.001_r8,(watsat(c,1)- aird))
-                 /max(0.001_r8,(0.8*watsat(c,1)- aird))
+                 /max(0.001_r8,(dint*watsat(c,1)- aird))
             
             dsl(c)=max(dsl(c),0._r8)
             dsl(c)=min(dsl(c),200._r8)
